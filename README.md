@@ -2,7 +2,7 @@
 
 A lightweight frontend extension for **ComfyUI** that enhances the built-in **Workflow Templates** library with powerful category filters, model family multi-selection, and custom sorting.
 
-![ComfyUI Clean Templates](https://raw.githubusercontent.com/comfyanonymous/ComfyUI/master/web/assets/favicon.ico)
+![ComfyUI Clean Templates](./assets/preview.png)
 
 ---
 
@@ -60,3 +60,4 @@ A lightweight frontend extension for **ComfyUI** that enhances the built-in **Wo
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
+
