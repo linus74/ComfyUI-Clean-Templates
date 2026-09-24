@@ -6,6 +6,18 @@ A lightweight frontend extension for **ComfyUI** that enhances the built-in **Wo
 
 ---
 
+## 💡 Why this extension?
+
+In recent ComfyUI updates, the Template Library unified all workflows—mixing local open-source setups with credit-based API workflows and commercial partner templates. Finding pure, locally runnable templates or quickly filtering by entire model families (like all Flux or Wan models) became cumbersome.
+
+**ComfyUI-Clean-Templates** adds a lightweight, seamless toolbar right into the template dialog, letting you:
+- Filter exclusively for **Free** local workflows with a single click.
+- Freely combine **Free**, **Partner**, and **ComfyUI credit** workflows using flexible OR logic.
+- Filter by complete **Model Families** (matching all variants of Flux, Wan, MiniMax, Qwen, SDXL, etc.).
+- Sort templates by release date, popularity, or alphabetically.
+
+---
+
 ## ✨ Features
 
 - 👑 **ComfyUI Workflow**: Toggle visibility of ComfyUI / cloud credit / API-based workflow templates.
