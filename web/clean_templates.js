@@ -16,6 +16,73 @@ import { api } from "../../scripts/api.js";
 const EXTENSION_NAME = "ComfyUI.CleanTemplates";
 const STORAGE_KEY = "comfyui_clean_templates_prefs_v4";
 
+// ---------------------------------------------------------------------------
+// Internationalization (i18n) - English (Default) & Italian
+// ---------------------------------------------------------------------------
+const I18N = {
+  en: {
+    comfyWorkflow: "👑 ComfyUI Workflow",
+    comfyTooltip: "Show workflows requiring ComfyUI credits / API",
+    partner: "🤝 Partner",
+    partnerTooltip: "Show commercial partner workflows",
+    free: "✓ Free",
+    freeTooltip: "Show free, local open-source workflows",
+    sortLabel: "Sort:",
+    sortNewest: "📅 Date (Newest)",
+    sortAlphabetical: "🔤 Alphabetical (A-Z)",
+    sortPopular: "🔥 Popular",
+    modelsLabel: "Models:",
+    allModels: "All models",
+    modelsSelected: (count) => `Models (${count} selected)`,
+    searchModelPlaceholder: "Search model or family...",
+    selectAll: "All",
+    deselectAll: "Deselect",
+    closeBtn: "Close",
+    mainFamiliesHeader: "🔥 Main Families",
+    allModelTagsHeader: "🏷️ All Model Tags",
+    resultsCount: (count, total) => `Showing: ${count} of ${total} total templates`,
+  },
+  it: {
+    comfyWorkflow: "👑 ComfyUI Workflow",
+    comfyTooltip: "Mostra workflow con coroncina (ComfyUI / Crediti)",
+    partner: "🤝 Partner",
+    partnerTooltip: "Mostra workflow di partner commerciali",
+    free: "✓ Free",
+    freeTooltip: "Mostra workflow gratuiti e open source locali",
+    sortLabel: "Ordina:",
+    sortNewest: "📅 Data (più recenti)",
+    sortAlphabetical: "🔤 Alfabetico (A-Z)",
+    sortPopular: "🔥 Popolari",
+    modelsLabel: "Modelli:",
+    allModels: "Tutti i modelli",
+    modelsSelected: (count) => `Modelli (${count} selezionati)`,
+    searchModelPlaceholder: "Cerca modello o famiglia...",
+    selectAll: "Tutti",
+    deselectAll: "Deseleziona",
+    closeBtn: "Chiudi",
+    mainFamiliesHeader: "🔥 Famiglie Principali",
+    allModelTagsHeader: "🏷️ Tutti i Tag Modello",
+    resultsCount: (count, total) => `Visualizzati: ${count} di ${total} template totali`,
+  },
+};
+
+function isItalian() {
+  try {
+    const setting = app.ui?.settings?.getSettingValue?.("Comfy.Locale");
+    if (typeof setting === "string") return setting.toLowerCase().startsWith("it");
+    const raw = localStorage.getItem("Comfy.Locale") || localStorage.getItem("Comfy.Settings.Comfy.Locale");
+    if (raw && typeof raw === "string" && raw.toLowerCase().includes("it")) return true;
+    if (document.documentElement.lang && document.documentElement.lang.toLowerCase().startsWith("it")) return true;
+  } catch (_) {}
+  return false;
+}
+
+function t(key, ...args) {
+  const lang = isItalian() ? "it" : "en";
+  const val = I18N[lang]?.[key] ?? I18N.en[key] ?? key;
+  return typeof val === "function" ? val(...args) : val;
+}
+
 // Inject CSS stylesheet
 try {
   const link = document.createElement("link");
@@ -481,7 +548,7 @@ function updateFooterResultCount() {
   if (!footerCountEl) return;
 
   const total = allUniqueRawTemplatesMap.size || 566;
-  const desiredText = `Visualizzati: ${currentMatchingCount} di ${total} template totali`;
+  const desiredText = t("resultsCount", currentMatchingCount, total);
   if (footerCountEl.textContent !== desiredText) {
     footerCountEl.textContent = desiredText;
   }
@@ -496,13 +563,13 @@ function updateModelDropdownButtonText() {
 
   const selected = userPrefs.selectedModels || [];
   if (selected.length === 0) {
-    btnText.textContent = "Tutti i modelli";
+    btnText.textContent = t("allModels");
   } else if (selected.length === 1) {
     const sId = selected[0];
     const fam = MODEL_FAMILIES.find((f) => f.id === sId);
     btnText.textContent = fam ? fam.label : sId;
   } else {
-    btnText.textContent = `Modelli (${selected.length} selezionati)`;
+    btnText.textContent = t("modelsSelected", selected.length);
   }
 }
 
@@ -516,7 +583,7 @@ function updateModelDropdownItems() {
   // 1. Group: Famiglie Principali
   const header1 = document.createElement("div");
   header1.className = "ct-section-header";
-  header1.textContent = "🔥 Famiglie Principali";
+  header1.textContent = t("mainFamiliesHeader");
   listContainer.appendChild(header1);
 
   MODEL_FAMILIES.forEach((fam) => {
@@ -553,7 +620,7 @@ function updateModelDropdownItems() {
   if (allUniqueModelTags.size > 0) {
     const header2 = document.createElement("div");
     header2.className = "ct-section-header";
-    header2.textContent = "🏷️ Tutti i Tag Modello";
+    header2.textContent = t("allModelTagsHeader");
     listContainer.appendChild(header2);
 
     const sortedTags = Array.from(allUniqueModelTags).sort((a, b) => a.localeCompare(b));
@@ -618,48 +685,48 @@ function createToolbar() {
 
   toolbar.innerHTML = `
     <div class="ct-toggle-group">
-      <label class="ct-checkbox-label" title="Mostra workflow con coroncina (ComfyUI / Crediti)">
+      <label class="ct-checkbox-label" title="${t("comfyTooltip")}">
         <input type="checkbox" id="ct-show-comfy" ${userPrefs.showComfy ? "checked" : ""} />
-        <span class="ct-tag-crown">👑 ComfyUI Workflow</span>
+        <span class="ct-tag-crown">${t("comfyWorkflow")}</span>
       </label>
-      <label class="ct-checkbox-label" title="Mostra workflow di partner commerciali">
+      <label class="ct-checkbox-label" title="${t("partnerTooltip")}">
         <input type="checkbox" id="ct-show-partner" ${userPrefs.showPartner ? "checked" : ""} />
-        <span class="ct-tag-partner">🤝 Partner</span>
+        <span class="ct-tag-partner">${t("partner")}</span>
       </label>
-      <label class="ct-checkbox-label" title="Mostra workflow gratuiti e open source locali">
+      <label class="ct-checkbox-label" title="${t("freeTooltip")}">
         <input type="checkbox" id="ct-show-free" ${userPrefs.showFree ? "checked" : ""} />
-        <span class="ct-tag-free">✓ Free</span>
+        <span class="ct-tag-free">${t("free")}</span>
       </label>
     </div>
 
     <div class="ct-divider"></div>
 
     <div class="ct-control-group">
-      <label for="ct-sort-select">Ordina:</label>
+      <label for="ct-sort-select">${t("sortLabel")}</label>
       <select id="ct-sort-select" class="ct-select">
-        <option value="newest" ${userPrefs.sortBy === "newest" ? "selected" : ""}>📅 Data (più recenti)</option>
-        <option value="alphabetical" ${userPrefs.sortBy === "alphabetical" ? "selected" : ""}>🔤 Alfabetico (A-Z)</option>
-        <option value="popular" ${userPrefs.sortBy === "popular" ? "selected" : ""}>🔥 Popolari</option>
+        <option value="newest" ${userPrefs.sortBy === "newest" ? "selected" : ""}>${t("sortNewest")}</option>
+        <option value="alphabetical" ${userPrefs.sortBy === "alphabetical" ? "selected" : ""}>${t("sortAlphabetical")}</option>
+        <option value="popular" ${userPrefs.sortBy === "popular" ? "selected" : ""}>${t("sortPopular")}</option>
       </select>
     </div>
 
     <div class="ct-divider"></div>
 
     <div class="ct-control-group ct-multiselect-container">
-      <label>Modelli:</label>
+      <label>${t("modelsLabel")}</label>
       <div class="ct-multiselect">
         <button type="button" id="ct-model-dropdown-btn" class="ct-dropdown-btn">
-          <span id="ct-model-btn-text">Tutti i modelli</span>
+          <span id="ct-model-btn-text">${t("allModels")}</span>
           <span class="ct-arrow">▾</span>
         </button>
         <div id="ct-model-dropdown-menu" class="ct-dropdown-menu" style="display: none;">
           <div class="ct-menu-search-bar">
-            <input type="text" id="ct-model-search-input" placeholder="Cerca modello o famiglia..." />
+            <input type="text" id="ct-model-search-input" placeholder="${t("searchModelPlaceholder")}" />
           </div>
           <div class="ct-menu-actions">
-            <button type="button" id="ct-btn-select-all" class="ct-mini-btn">Tutti</button>
-            <button type="button" id="ct-btn-deselect-all" class="ct-mini-btn">Deseleziona</button>
-            <button type="button" id="ct-menu-apply-btn" class="ct-mini-btn ct-mini-apply">Chiudi</button>
+            <button type="button" id="ct-btn-select-all" class="ct-mini-btn">${t("selectAll")}</button>
+            <button type="button" id="ct-btn-deselect-all" class="ct-mini-btn">${t("deselectAll")}</button>
+            <button type="button" id="ct-menu-apply-btn" class="ct-mini-btn ct-mini-apply">${t("closeBtn")}</button>
           </div>
           <div id="ct-model-items-list" class="ct-items-list"></div>
         </div>
